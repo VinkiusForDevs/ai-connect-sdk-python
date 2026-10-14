@@ -1,0 +1,3 @@
+# Normalize line endings in the repo to LF so builds/installs are consistent
+# across OSes. Windows working copies still get CRLF on checkout automatically.
+* text=auto

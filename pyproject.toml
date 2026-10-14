@@ -1,0 +1,75 @@
+[build-system]
+requires = ["hatchling>=1.24"]
+build-backend = "hatchling.build"
+
+[project]
+name = "vinkius-connect"
+version = "0.1.0"
+description = "Ship AI features, not integration projects. Give every user of your AI app their own connectors and AI capabilities. (Python SDK)"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "Apache-2.0" }
+authors = [{ name = "Vinkius" }]
+keywords = [
+  "vinkius",
+  "connectors",
+  "capabilities",
+  "ai",
+  "agents",
+  "tools",
+  "tool-calling",
+  "function-calling",
+  "llm",
+  "mcp",
+  "openai",
+  "anthropic",
+  "gemini",
+  "langchain",
+  "llamaindex",
+  "crewai",
+]
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Intended Audience :: Developers",
+  "License :: OSI Approved :: Apache Software License",
+  "Operating System :: OS Independent",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Programming Language :: Python :: 3.14",
+  "Topic :: Software Development :: Libraries :: Python Modules",
+]
+dependencies = [
+  "httpx>=0.27,<1.0",
+]
+
+[project.optional-dependencies]
+test = [
+  "pytest>=8",
+  "pytest-asyncio>=0.23",
+]
+# Framework adapters are zero-dependency: they never import the frameworks
+# themselves. These extras only install the frameworks so examples/tests that
+# build genuine framework objects can run.
+openai = ["openai>=1.0"]
+anthropic = ["anthropic>=0.30"]
+gemini = ["google-genai>=1.0"]
+langchain = ["langchain-core>=0.2"]
+llamaindex = ["llama-index-core>=0.10"]
+crewai = ["crewai>=0.20"]
+openai-agents = ["openai-agents>=0.1"]
+
+[project.urls]
+Homepage = "https://vinkius.com"
+Repository = "https://github.com/VinkiusForDevs/ai-connect-sdk-python"
+Issues = "https://github.com/VinkiusForDevs/ai-connect-sdk-python/issues"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/vinkius_connect"]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
+pythonpath = ["src"]
