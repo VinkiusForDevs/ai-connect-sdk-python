@@ -15,7 +15,7 @@ One SDK for user-specific tools, credentials, permissions, and execution across 
 
 ---
 
-<img src="powered_futuristic_fulfillment_factory.png" />
+<img src="assets/hero.webp" />
 
 <br >
 
@@ -23,7 +23,7 @@ AI applications become more useful when they can take action in the systems thei
 
 **Vinkius Connect handles that connectivity layer.** Your application keeps its users and customer experience. Vinkius resolves each user's connected systems and available capabilities, executes actions on their behalf, and returns the result.
 
-<img src="Connectors_Real_Actions.png" />
+<img src="assets/Connectors_Real_Actions.webp" />
 
 ```text
 Your AI application
@@ -57,7 +57,7 @@ Vinkius Connect
 
 The `external_id` is an identifier, **not an authentication mechanism**. Only pass an ID that your backend has associated with the currently authenticated user. Never trust a user ID supplied directly by an untrusted client.
 
-<img src="Invisible_Infrastructure_Secure_Connections.png" />
+<img src="assets/Invisible_Infrastructure_Secure_Connections.webp" />
 
 ## Installation
 
