@@ -1,8 +1,7 @@
-"""Capability and CapabilitySet — the agent-facing units of a user's connectors.
+"""Capability and CapabilitySet: the agent-facing units of a user's connectors.
 
 A :class:`Capability` is executable and framework-neutral. :class:`CapabilitySet`
-is a ``list`` subclass with ergonomic helpers (kept minimal to avoid surprising
-list-method overrides — hence ``find_capability``, not ``filter``).
+is a ``list`` subclass with ergonomic helpers.
 """
 
 from __future__ import annotations
@@ -19,7 +18,7 @@ __all__ = [
     "CapabilityExecutor",
 ]
 
-#: Executes a capability at the MCP runtime — the sole execution surface.
+#: Executes a capability at the runtime.
 #: Signature: ``(raw_name, args, opts) -> Awaitable[CapabilityResult]``. The
 #: runtime target (a connection's ``mcp_url``, which embeds its ``vk_live_*``
 #: token) is bound into the executor when the capability is built, so the

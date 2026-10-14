@@ -1,8 +1,8 @@
 """Google Gemini adapter.
 
 Converts Vinkius capabilities into Gemini **function declarations** (Gemini's
-own term). Zero-dependency: uses plain dicts compatible with the unified Google
-GenAI SDK (``google-genai`` / ``@google/genai``) — no import required.
+own term). Zero-dependency: returns plain dicts compatible with the Google
+``google-genai`` SDK; no import required.
 
 Example::
 
@@ -27,10 +27,9 @@ __all__ = [
     "run_gemini_function_call",
 ]
 
-#: Gemini function names must start with a letter/underscore and contain only
-#: letters, numbers, and underscores (≤64 chars). HYPHENS ARE NOT ALLOWED — a
-#: connector slug like ``google-calendar`` would make Gemini reject every call,
-#: so this is validated up front instead of failing at call time.
+#: Gemini function names: a letter or underscore followed by letters, numbers,
+#: and underscores, max 64 chars. Hyphens are not allowed, so connector slugs
+#: like ``google-calendar`` would be rejected; they are validated up front.
 GEMINI_NAME_RE = re.compile(r"^[a-zA-Z_][a-zA-Z0-9_]*$")
 GEMINI_NAME_MAX = 64
 

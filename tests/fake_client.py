@@ -1,7 +1,6 @@
-"""A fake httpx-style async client for tests (the Python analogue of the
-TypeScript SDK's mock ``fetch``).
+"""A fake httpx-style async client for tests.
 
-Records every request and returns queued responses. Supports raising errors to
+Records all requests and returns queued responses. Supports raising errors to
 simulate network failures.
 """
 

@@ -4,9 +4,8 @@
     GET /catalog/mcps/{slug}            -> CatalogConnectorDetail (+ credential_schema)
     GET /marketplace/search?q=...&page= -> marketplace-ranked search results
 
-Catalog listing/detail use the internal MCP data-plane routes. Search uses the
-public marketplace endpoint so SDK consumers receive the same ranking and
-results as the Vinkius website.
+Search uses the public marketplace endpoint so consumers receive the same
+ranking and results as the Vinkius website.
 """
 
 from __future__ import annotations

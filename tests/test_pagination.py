@@ -1,4 +1,4 @@
-"""Pagination tests (mirrors test/pagination.test.ts)."""
+"""Pagination tests."""
 
 from __future__ import annotations
 

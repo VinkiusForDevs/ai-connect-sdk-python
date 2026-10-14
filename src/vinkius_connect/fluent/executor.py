@@ -13,8 +13,8 @@ __all__ = ["make_executor"]
 def make_executor(runtime: RuntimeClient) -> CapabilityExecutor:
     """Bind an executor to a connection's runtime client.
 
-    Execution goes straight to the MCP runtime (metered against the connection's
-    ``vk_live_*`` token); the API is never an execution surface.
+    Execution runs against the runtime client; the connection's ``vk_live_*``
+    token is embedded in its ``mcp_url``, so no API auth headers are added here.
     """
 
     async def executor(

@@ -30,7 +30,7 @@ class Connector:
         self._user = user
         self.slug = slug
         self._connection_id: Optional[str] = None
-        #: Runtime client for this connection — the sole execution surface.
+        #: Runtime client for this connection.
         self._runtime_client: Optional[RuntimeClient] = None
         #: Connection id the memoized runtime client was provisioned for.
         self._provisioned_for: Optional[str] = None
@@ -47,10 +47,9 @@ class Connector:
         """Connect this connector for the user (get-or-create; idempotent), then
         provision the connection's ``vk_live_*`` data-plane token.
 
-        The returned Connection carries ``runtime_url`` — the sole surface for
-        listing/executing this connection's tools, metered and revocable.
-        Callers should persist it; the URL (and its embedded token) is returned
-        ONLY here.
+        The returned Connection carries ``runtime_url``, the only surface for
+        listing and executing this connection's tools. Callers should persist
+        it; the URL (and its embedded token) is returned only here.
         """
         opts = opts or {}
         connection = await self._connections().create(

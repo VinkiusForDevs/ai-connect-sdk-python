@@ -1,15 +1,11 @@
-"""Connection tokens (low-level, 1:1 with the API).
+"""Connection tokens (low-level).
 
     POST /apps/{app}/users/{externalId}/mcps/{connection}/tokens  -> IssuedConnectionToken
 
 A token is the ``vk_live_*`` data-plane credential bound to one connection. The
-API returns its plaintext AND its runtime ``mcp_url`` ONLY on this create call —
-they are never re-fetchable. Every tool call through the runtime is metered
-against this token, and the user can disable/delete it (kill switch).
-
-The SDK provisions exactly one token per connection at ``connect()`` time and
-remembers its runtime URL; it never silently re-mints on execution, so a revoked
-token fails closed instead of quietly billing a fresh one.
+API returns its plaintext and its runtime ``mcp_url`` only on this create call;
+they are never re-fetchable. Each POST mints a distinct token, so the request is
+not retry-safe and is never auto-retried.
 """
 
 from __future__ import annotations

@@ -1,8 +1,7 @@
-"""CredentialsHandle — high-level credential management for one connection.
+"""CredentialsHandle: high-level credential management for one connection.
 
-Operates on an EXISTING connection (it never connects implicitly). The flat
-``set(values)`` map is wrapped into the HTTP ``{ credentials: values }``
-envelope so the wire shape never leaks into the SDK surface.
+Operates on an existing connection (it never connects implicitly). The flat
+``set(values)`` map is wrapped into the ``{ credentials: values }`` HTTP envelope.
 """
 
 from __future__ import annotations

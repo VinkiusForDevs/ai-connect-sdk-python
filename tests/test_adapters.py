@@ -1,4 +1,4 @@
-"""Framework adapter tests (mirrors test/adapters.test.ts)."""
+"""Framework adapter tests."""
 
 from __future__ import annotations
 

@@ -1,4 +1,4 @@
-"""Concurrency-limited promise/asyncio pooling."""
+"""Concurrency-limited asyncio pooling."""
 
 from __future__ import annotations
 
@@ -15,9 +15,8 @@ async def pooled_map(
 ) -> list[Any]:
     """Map over ``items`` with at most ``limit`` in-flight coroutines.
 
-    Order of results matches the order of ``items``. Failures are propagated
-    by the caller (the SDK catches per-item errors in the fan-out that uses
-    this helper), not swallowed here.
+    Order of results matches the order of ``items``. Per-item failures are not
+    swallowed here; the caller handles them.
     """
     results: list[Any] = [None] * len(items)
     semaphore = asyncio.Semaphore(max(1, limit))

@@ -4,12 +4,9 @@ Domain vocabulary: an application has end-users; each user has **connectors**
 (integrations they connect, e.g. GitHub); a connected connector is a
 **connection**; and the executable units the AI uses are **capabilities**.
 
-Raw resource shapes mirror the API JSON (``snake_case``) and are represented as
+Raw resource shapes match the API JSON (``snake_case``) and are represented as
 plain ``dict`` at runtime (exactly what the wire returns). Structured,
 behavior-bearing types are dataclasses / classes below.
-
-The Vinkius data plane is MCP-based internally, but that is an implementation
-detail of the platform and never part of the SDK's vocabulary.
 """
 
 from __future__ import annotations
@@ -36,7 +33,7 @@ __all__ = [
     "VinkiusOptions",
 ]
 
-# A JSON Schema object (loosely typed — capability input schemas vary).
+# A JSON Schema object (loosely typed: capability input schemas vary).
 JSONSchema = dict[str, Any]
 
 # Wire resource shapes (plain dicts, keyed by the API's snake_case fields).
@@ -97,7 +94,7 @@ class CapabilityResult:
     content: list[dict[str, str]] = field(default_factory=list)
     is_error: bool = False
     #: Structured (parsed) output returned by the capability, when the
-    #: connector provides it (MCP ``structuredContent``), surfaced verbatim.
+    #: connector provides it (``structuredContent``), surfaced verbatim.
     structured_content: Any = None
 
     def text(self) -> str:
@@ -109,9 +106,8 @@ class CapabilityResult:
 class RequestOptions:
     """Optional per-request controls accepted by every SDK call."""
 
-    #: Reserved for an asyncio cancellation handle (e.g. a ``threading.Event``
-    #: or an ``asyncio`` task). The SDK relies on standard task cancellation for
-    #: the timeout; a per-request ``timeout_ms`` is honored below.
+    #: Reserved for an optional cancellation handle; the SDK relies on
+    #: standard task cancellation for timeouts.
     signal: Any = None
     #: Idempotency key forwarded as the ``Idempotency-Key`` header. Declaring it
     #: makes the request retry-safe: transport retries are enabled even for
@@ -139,10 +135,8 @@ class CapabilityQuery:
     include: Optional[list[str]] = None
     #: Exclude these connector slugs (client-side filter before any call).
     exclude: Optional[list[str]] = None
-    #: Observe partial fan-out failures. When a single connector's capability
-    #: list fails, the aggregation is failure-tolerant (the rest still resolves),
-    #: but by default the failure is swallowed. Provide this callback to be
-    #: notified of the slug and the thrown error for that connector.
+    #: Optional callback to observe a single connector's capability-list failure;
+    #: by default such failures are swallowed so the rest still resolves.
     on_connector_error: Optional[Callable[[str, BaseException], None]] = None
     idempotency_key: Optional[str] = None
     timeout_ms: Optional[int] = None
@@ -164,8 +158,6 @@ class VinkiusOptions:
     app_id: str
     #: Secret application key — the ``vk_app_sk_*`` credential (Bearer auth).
     api_key: str
-    #: API base URL. Defaults to the Vinkius Cloud production host.
-    base_url: Optional[str] = None
     #: Per-request timeout in milliseconds. Default: 30000.
     timeout_ms: Optional[int] = None
     #: Max automatic retries for idempotent requests. Default: 2.

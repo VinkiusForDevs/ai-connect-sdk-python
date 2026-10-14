@@ -3,14 +3,13 @@ retries honoring ``Retry-After``, and redacted observability hooks.
 
 Both the control plane (:class:`~vinkius_connect.core.http.HttpClient`) and the
 data plane (:class:`~vinkius_connect.core.runtime.RuntimeClient`) go through here
-so timeout, retry, and hook semantics can never drift apart.
+so timeout, retry, and hook semantics stay consistent.
 
 The transport talks to any object with an async ``request`` method (by default
-an ``httpx.AsyncClient``), so it is injectable for tests / custom runtimes —
-the Python analogue of the TypeScript SDK's injectable ``fetch``.
+an ``httpx.AsyncClient``), so it is injectable for tests and custom runtimes.
 
-Hooks receive ONLY redacted data: secret headers are masked and any
-``vk_live_*`` path segment in the URL (the data-plane token) is replaced.
+Hooks receive only redacted data: secret headers are masked and any
+``vk_live_*`` path segment in the URL is replaced.
 """
 
 from __future__ import annotations
@@ -97,9 +96,8 @@ class Transport:
                 raise ConnectionError(f"{req.label} failed", cause=error) from error
 
             request_id = self._extract_request_id(response)
-            # Read the body within the same request window. httpx reads the
-            # body eagerly under the same timeout (no separate stalled-stream
-            # race needed), so ``.text`` is available here.
+            # httpx reads the body eagerly under the same timeout, so ``.text``
+            # is available here.
             body = self._parse_body(getattr(response, "text", "") or "")
             retry_after_ms = parse_retry_after(self._header(response, "retry-after"))
 

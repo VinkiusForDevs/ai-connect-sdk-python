@@ -1,6 +1,6 @@
-"""Low-level REST resource clients (1:1 with the Vinkius Cloud API).
+"""Low-level REST resource clients.
 
-These are the "control plane" building blocks that the fluent layer composes.
+These are the control-plane building blocks that the fluent layer composes.
 Every method takes an optional ``opts`` dict (``idempotency_key``,
 ``timeout_ms``) and returns the raw API JSON as a ``dict`` (or ``list``/``None``).
 """

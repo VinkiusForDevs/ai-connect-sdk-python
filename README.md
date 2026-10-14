@@ -1,327 +1,370 @@
 <div align="center">
 
-# Vinkius Connect — Python SDK
+# Vinkius Connect for Python
 
-### Ship AI that _acts_ for each of your users — not just AI that talks.
+### Build AI agents that act for each user.
+
+One SDK for user-specific tools, credentials, permissions, and execution across **11,000+ systems**.
 
 [![Connectors](https://api.vinkius.com/badges/connectors.svg)](https://vinkius.com)
 [![AI Capabilities](https://api.vinkius.com/badges/capabilities.svg)](https://vinkius.com)
+
+[Documentation](https://vinkius.com/learn/en/connect-sdk) · [Vinkius Cloud](https://cloud.vinkius.com) · [Site](https://vinkius.com)
 
 </div>
 
 ---
 
-## Why you're here
+<img src="powered_futuristic_fulfillment_factory.png" />
 
-You're building an AI product. Your model is smart, but by itself it can only
-_do_ what you hard-code: answer, summarize, draft. The moment you want it to
-**take real action for your users** — open a ticket in their repo, post to their
-workspace, file a report, move a task — you hit the **integration tax**:
+<br >
 
-For every external system your agent can touch, you'd otherwise need to build and
-maintain, **per user**:
+AI applications become more useful when they can take action in the systems their users already work with. But shipping those actions means dealing with integrations, OAuth, credential storage, permissions, API changes, and model-specific tool formats.
 
-- ❌ OAuth flows and token refresh
-- ❌ Where and how to **store** each user's secrets safely
-- ❌ Per-user **permissions** ("what can *this* user's agent do?")
-- ❌ Protocol glue (MCP, OpenAI tools, Anthropic blocks, …)
-- ❌ Endless **API churn** — the vendor changes the API and your integration breaks
+**Vinkius Connect handles that connectivity layer.** Your application keeps its users and customer experience. Vinkius resolves each user's connected systems and available capabilities, executes actions on their behalf, and returns the result.
 
-That's weeks of unglamorous plumbing *per integration*, and it multiplies with
-every new user and every new tool. It's also exactly the part that's boring to
-ship and dangerous to get wrong (leaked tokens, cross-user data leaks, revoked
-credentials).
+<img src="Connectors_Real_Actions.png" />
 
-## What Vinkius Connect gives you
-
-**Vinkius Connect is a managed connectivity layer for AI builders.** It turns your
-single application into a platform where **every end-user gets their own isolated
-connectors and capabilities** — and you get them as a clean, framework-neutral set
-of tools your agent can call.
-
-You identify the user. Vinkius handles the connectivity, authentication,
-permissions, protocols, and execution behind the scenes.
-
-```
-Your AI Application
+```text
+Your AI application
         │
+        │  Your authenticated user's external_id
         ▼
-      User   ← you already know who this is (your own user id)
+Vinkius Connect
+  identity · connections · credentials · capabilities · execution
         │
-        ▼
-   Connectors   ← systems that user connected (GitHub, Slack, …)
-        │
-        ▼
-   Capabilities   ← the actions your agent can now take for that user
-        │
-        ▼
-      Action
+        ├── GitHub
+        ├── Slack
+        ├── Project management
+        └── 11,000+ connected systems
 ```
 
-### The core win, in one line
+## Why Vinkius Connect?
 
-```python
-capabilities = await vinkius.user("alice_123").capabilities()
-# -> every real action alice's connectors allow, as ready-to-call tools
-```
+- **Built for multi-user AI products.** Each user has their own connections and available capabilities.
+- **One consistent interface.** Discover and execute actions without implementing each integration yourself.
+- **Credentials stay out of model context.** Connector secrets are write-only through the documented API and are not returned to application code.
+- **Framework flexibility.** Adapt capabilities to OpenAI, Anthropic, Gemini, LangChain, LlamaIndex, OpenAI Agents, CrewAI, or a neutral JSON Schema format.
+- **Managed connectivity.** Vinkius maintains connectors and their evolving APIs.
+- **Your product stays yours.** Use your application's own user IDs and keep the customer relationship and user experience in your product.
 
-That's it. One call hands your agent the full, **user-scoped** set of capabilities,
-and each one is executable. No OAuth, no token vault, no per-integration code.
+## How it works
 
-## What's in it for you (the AI builder)
+1. **Identify the user.** Pass the stable `external_id` assigned by your application backend.
+2. **Discover capabilities.** Vinkius resolves the user's ready connectors and the actions they expose.
+3. **Provide tools to the model.** Convert those capabilities into the tool format expected by your model or framework.
+4. **Execute the selected action.** Send the tool call to Vinkius and return the result to your agent loop.
 
-- **Build product, not plumbing.** Point your agent at `user.capabilities()` and
-  it can act across every system your users connected — without you writing a
-  single OAuth flow or secret store.
-- **Per-user isolation by default.** Each user's connectors and credentials are
-  siloed; one user's agent can never act through another's. You inherit security
-  properties you'd otherwise have to design and audit yourself.
-- **Thousands of maintained connectors.** Vinkius maintains the integrations,
-  including their API churn. You get new capabilities when Vinkius adds them —
-  not when you get around to patching a broken integration.
-- **Portable across your stack.** The same capabilities feed OpenAI, Anthropic,
-  Gemini, LangChain, LlamaIndex, OpenAI Agents, or CrewAI. Swap models or agent
-  frameworks without rebuilding connectivity.
-- **One credential to manage.** Your backend authenticates with a single
-  application key. No per-user, per-integration secret management in your code.
+The `external_id` is an identifier, **not an authentication mechanism**. Only pass an ID that your backend has associated with the currently authenticated user. Never trust a user ID supplied directly by an untrusted client.
 
-## How it's different
+<img src="Invisible_Infrastructure_Secure_Connections.png" />
 
-The design is chosen to keep **you** the relationship, not Vinkius:
+## Installation
 
-- **Write-only credentials.** You can *set* a user's connector secret and *check
-  whether it's set* — but it can never be read back, by your code or by the model.
-  The raw token never enters your context or your logs.
-- **Your users never meet Vinkius.** End-users connect through *your* product;
-  Vinkius stays invisible. Your customer relationship is intact.
-- **Capabilities are actions, not integrations.** Your agent calls
-  `github__create_issue`; Vinkius resolves the auth, permission, protocol, and
-  execution. A capability-level failure comes back as a **result**
-  (`is_error=True`), not a crash — so your agent loop can feed it back to the
-  model and recover gracefully.
-- **Stateless, metered execution.** Tool runs go through a per-user runtime
-  keyed to a short-lived token that can be killed — billing and revocation are
-  per-user, not global.
+Python **3.10+** is required. The SDK uses `httpx` as its runtime dependency.
 
-## Install
+### Install from PyPI
 
 ```bash
 pip install vinkius-connect
 ```
 
-> **Not yet published?** Or do you want the very latest from `main`? Install
-> straight from the repository — no PyPI involved:
->
-> ```bash
-> pip install "git+https://github.com/VinkiusForDevs/ai-connect-sdk-python.git"
-> ```
+If the package is not yet available on PyPI, install the current repository version:
 
-Requires Python **3.10+** and [`httpx`](https://www.python-httpx.org/) (the only
-runtime dependency). The framework adapters are **zero-dependency** — they shape
-tools, they never import your framework. Optional extras exist only to install a
-framework if you want to build genuine framework objects in tests/examples:
-`pip install -e ".[openai]" ".[anthropic]" ".[langchain]"` and friends.
+```bash
+pip install "git+https://github.com/VinkiusForDevs/ai-connect-sdk-python.git"
+```
 
 ## Quick start
+
+Create an AI application in [Vinkius Cloud](https://cloud.vinkius.com), then create an application key. Keep the key on your server. **Never expose it in browser code, mobile clients, or model prompts.**
+
+Set the environment variables:
+
+```bash
+export VINKIUS_APP_ID="vk_app_..."
+export VINKIUS_APP_KEY="vk_app_sk_..."
+```
+
+Then discover and execute a capability:
 
 ```python
 import os
 from vinkius_connect import Vinkius
 
-vinkius = Vinkius(
-    app_id=os.environ["VINKIUS_APP_ID"],     # vk_app_…  (your tenant)
-    api_key=os.environ["VINKIUS_APP_KEY"],   # vk_app_sk_… (your secret, server-side only)
-)
 
-# 1. Everything this user can do, as executable tools
-capabilities = await vinkius.user("alice_123").capabilities()
+async def main() -> None:
+    async with Vinkius(
+        app_id=os.environ["VINKIUS_APP_ID"],
+        api_key=os.environ["VINKIUS_APP_KEY"],
+    ) as vinkius:
+        # Use the ID of the authenticated user from your own backend.
+        user = vinkius.user("alice_123")
 
-# 2. Run one
-result = await capabilities.find_capability("github__create_issue").execute(
-    {"owner": "acme", "repo": "product", "title": "Ship it"}
-)
-print(result.text())
+        # Discover actions available through this user's ready connectors.
+        capabilities = await user.capabilities()
+
+        # Execute one capability by its namespaced name.
+        result = await capabilities.find_capability(
+            "github__create_issue"
+        ).execute(
+            {
+                "owner": "acme",
+                "repo": "product",
+                "title": "Ship it",
+            }
+        )
+
+        print(result.text())
+
+
+if __name__ == "__main__":
+    import asyncio
+    asyncio.run(main())
 ```
 
-> Get `app_id` / `api_key` from the [Vinkius Cloud](https://cloud.vinkius.com)
-> dashboard (**Build AI Apps → New AI Application → App Keys**). The key is shown
-> **once** and is server-side only — never ship it to a browser or the model.
+The capability name and input schema depend on the connector and capabilities available to that user. Discover available capabilities before attempting to execute one.
 
-### End-to-end with your framework
+## Use capabilities with an AI model
 
-The whole loop is: **get the user's capabilities → hand them to your model as
-tools → when the model asks for one, execute it and return the result.**
+The usual agent loop is straightforward:
+
+1. Fetch the authenticated user's capabilities.
+2. Convert them into the model's tool format.
+3. Send the user's request and tools to the model.
+4. Execute the returned tool call through Vinkius.
+5. Return the result to the model as part of your agent loop.
+
+### Example: OpenAI Chat Completions
+
+Install the OpenAI client for this example:
+
+```bash
+pip install openai
+```
 
 ```python
+import os
+import asyncio
 import openai
 from vinkius_connect import Vinkius
 from vinkius_connect.adapters import openai as vk_openai
 
-client = openai.AsyncOpenAI()
-vinkius = Vinkius(app_id=os.environ["VINKIUS_APP_ID"],
-                  api_key=os.environ["VINKIUS_APP_KEY"])
 
-caps = await vinkius.user("alice_123").capabilities()
+async def main() -> None:
+    client = openai.AsyncOpenAI()
 
-resp = await client.chat.completions.create(
-    model="gpt-4o",
-    messages=[{"role": "user", "content": "Open a GitHub issue titled 'Ship it'"}],
-    tools=vk_openai.to_openai_tools(caps),        # <- your user's real capabilities
-)
+    async with Vinkius(
+        app_id=os.environ["VINKIUS_APP_ID"],
+        api_key=os.environ["VINKIUS_APP_KEY"],
+    ) as vinkius:
+        # Resolve this ID only after authenticating the user in your backend.
+        caps = await vinkius.user("alice_123").capabilities()
 
-call = resp.choices[0].message.tool_calls[0]
-if call:
-    result = await vk_openai.run_openai_tool_call(caps, call)   # executes on Vinkius
-    print(result.text())
+        response = await client.chat.completions.create(
+            model=os.environ["OPENAI_MODEL"],
+            messages=[
+                {
+                    "role": "user",
+                    "content": "Open a GitHub issue titled 'Ship it'",
+                }
+            ],
+            tools=vk_openai.to_openai_tools(caps),
+        )
+
+        message = response.choices[0].message
+        if not message.tool_calls:
+            print(message.content or "No tool call returned.")
+            return
+
+        # Production agent loops should handle each tool call and send its result
+        # back to the model using the provider's expected format.
+        for tool_call in message.tool_calls:
+            result = await vk_openai.run_openai_tool_call(caps, tool_call)
+            print(result.text())
+
+
+if __name__ == "__main__":
+    asyncio.run(main())
 ```
 
-See [`examples/openai_end_to_end.py`](examples/openai_end_to_end.py) and
-[`examples/chatbot.py`](examples/chatbot.py).
+For a fuller example, see [`examples/openai_end_to_end.py`](examples/openai_end_to_end.py) and [`examples/chatbot.py`](examples/chatbot.py).
 
-## Connect a connector (onboarding a user)
+## Connect a user's system
 
-For the first time a user wires up a system, you provision it in a few calls:
+Provision a connector for a user, set its credentials, check its status, and inspect its capabilities:
 
 ```python
-github = vinkius.user("alice_123").connector("github")
+user = vinkius.user("alice_123")
+github = user.connector("github")
 
-await github.connect()                                  # get-or-create the connection
-await github.credentials.set({"GITHUB_TOKEN": token})   # write-only: set it, never read it
-print(await github.status())   # not_connected | needs_credentials | ready | disabled
+await github.connect()  # Get or create the connection
+await github.credentials.set({"GITHUB_TOKEN": token})
 
-await github.capabilities()   # the actions this connector provides
+status = await github.status()
+print(status)  # not_connected, needs_credentials, ready, or disabled
+
+capabilities = await github.capabilities()
 ```
 
-Credentials are **write-only**: check the schema and which keys are set — the
-SDK never returns the secret values.
+The example assumes `vinkius` is already configured and `token` was obtained securely. In a production application, prefer the supported authorization flow for the connector where available, and never ask users to paste secrets into an AI conversation.
+
+Credential values are write-only through the documented interface. The credential schema and whether a value is set can be inspected; secret values cannot be read back.
 
 ## Framework adapters
 
-One set of capabilities, many tool formats. Pick the adapter that matches the
-stack you're already in — inject that framework's own factory where noted, so the
-adapters stay dependency-free.
+A capability set can be converted to different tool formats. Adapter modules shape the tools; they do not require the target framework merely to perform the conversion. Install the relevant framework if your application or tests need it.
 
-| Framework                        | Module                                | Use |
-| -------------------------------- | ------------------------------------- | --- |
-| **OpenAI** (chat completions)    | `adapters.openai`      | `to_openai_tools`, `run_openai_tool_call` |
-| **Anthropic** (Messages)         | `adapters.anthropic`    | `to_anthropic_tools`, `run_anthropic_tool_use` |
-| **Google Gemini**                | `adapters.gemini`       | `to_gemini_tools`, `run_gemini_function_call` |
-| **LangChain**                    | `adapters.langchain`    | `to_langchain_tools` (inject `tool`) |
-| **LlamaIndex**                   | `adapters.llamaindex`   | `to_llamaindex_tools` (inject factory) |
-| **OpenAI Agents** (`openai-agents`) | `adapters.openai_agents` | `to_openai_agents_tools` (inject factory) |
-| **CrewAI**                       | `adapters.crewai`       | `to_crewai_tools` (inject `@tool`), `execute_capability_sync` |
-| **Any / neutral**                | `adapters.json_schema`  | `to_json_schema_tools`, `execute_by_name` |
+| Framework / format | Adapter module | Main functions |
+| --- | --- | --- |
+| OpenAI Chat Completions | `adapters.openai` | `to_openai_tools`, `run_openai_tool_call` |
+| Anthropic Messages | `adapters.anthropic` | `to_anthropic_tools`, `run_anthropic_tool_use` |
+| Google Gemini | `adapters.gemini` | `to_gemini_tools`, `run_gemini_function_call` |
+| LangChain | `adapters.langchain` | `to_langchain_tools` |
+| LlamaIndex | `adapters.llamaindex` | `to_llamaindex_tools` |
+| OpenAI Agents | `adapters.openai_agents` | `to_openai_agents_tools` |
+| CrewAI | `adapters.crewai` | `to_crewai_tools`, `execute_capability_sync` |
+| Framework-neutral | `adapters.json_schema` | `to_json_schema_tools`, `execute_by_name` |
+
+Example:
 
 ```python
 from vinkius_connect.adapters import openai, anthropic, gemini, json_schema
 
 caps = await vinkius.user("alice_123").capabilities()
 
-openai_tools    = openai.to_openai_tools(caps)       # -> tools=[...]
-anthropic_tools = anthropic.to_anthropic_tools(caps)  # -> tools=[...]
-gemini_decls    = gemini.to_gemini_tools(caps)        # -> functionDeclarations
-plain           = json_schema.to_json_schema_tools(caps)  # -> {name, description, parameters}
+openai_tools = openai.to_openai_tools(caps)
+anthropic_tools = anthropic.to_anthropic_tools(caps)
+gemini_tools = gemini.to_gemini_tools(caps)
+json_schema_tools = json_schema.to_json_schema_tools(caps)
 ```
 
-## The mental model
+## Core concepts
 
-| Term | What it is |
-| ---- | ---------- |
-| **Connector** | An external system a user connected (GitHub, Slack, …). Provides access. |
-| **Capability** | An actionable unit a connector exposes (`list repositories`, `create issue`). Provides action. |
-| **User** | Identified by **your** `external_id` (`"alice_123"`). No Vinkius user id to resolve, cache, or store. |
-| **Control plane** | Provisioning & state: users, connectors, credentials, catalog (plain REST). |
-| **Execution plane** | Runtime: listing & executing capabilities, metered per user by a short-lived token. |
+| Concept | Meaning |
+| --- | --- |
+| **Connector** | An external system a user connects, such as GitHub or Slack. |
+| **Capability** | An executable action exposed by a connector, such as listing repositories or creating an issue. |
+| **User** | A user identified by your application's `external_id`. Vinkius does not require a separate end-user identity. |
+| **Control plane** | Provisioning and state management for users, connectors, credentials, and catalog discovery. |
+| **Execution plane** | Runtime capability discovery and execution, per user through a short-lived token. |
 
-`user.capabilities()` is a **fan-out**: it lists every one of the user's
-*ready* connectors in parallel (capped at 8 at a time). One flaky connector
-doesn't sink the batch — pass `{"on_connector_error": fn}` to observe failures;
-if *all* fail, the first error is raised.
+### Capability discovery behavior
 
-## Reference
+`user.capabilities()` resolves the user's ready connectors in parallel, with concurrency capped at eight. A single unresponsive connector does not necessarily fail the whole batch. Use `on_connector_error` to observe individual connector failures. If all connectors fail, the first error is raised.
 
-### Configuration
+## Configuration
 
 ```python
-Vinkius(
-    app_id="vk_app_…",
-    api_key="vk_app_sk_…",
-    base_url="https://api.vinkius.com",   # default
-    timeout_ms=30_000,                    # default
-    max_retries=2,                        # default — idempotent requests only
-    client=None,                          # inject an httpx.AsyncClient (tests / edge)
-    user_agent="acme-ai/1.0",            # appended to the SDK's User-Agent
-    namespace_capability=lambda c, n: f"{c}__{n}",
-    hooks=None,                           # observability hooks (headers/body redacted)
+from vinkius_connect import Vinkius
+
+vinkius = Vinkius(
+    app_id="vk_app_...",
+    api_key="vk_app_sk_...",
+    timeout_ms=30_000,  # default
+    max_retries=2,      # default; retry-safe requests only
+    client=None,        # optionally inject an httpx.AsyncClient
+    user_agent="acme-ai/1.0",
+    namespace_capability=lambda connector, name: f"{connector}__{name}",
+    hooks=None,
 )
 ```
 
-Injecting a `client` is the whole testing story: hand it a fake and drive the SDK
-offline. Otherwise the SDK owns an `httpx.AsyncClient` — `await vinkius.aclose()`
-or `async with Vinkius(...) as v:` to release it.
+- **`app_id`** identifies your Vinkius application.
+- **`api_key`** is a server-side secret. Keep it out of clients and prompts.
+- **`timeout_ms`** sets the request timeout.
+- **`max_retries`** controls retries for retry-safe requests.
+- **`client`** lets you inject an `httpx.AsyncClient`, useful for tests and custom transports.
+- **`user_agent`** appends your application's identifier to the SDK user agent.
+- **`namespace_capability`** controls how connector and capability names are combined.
+- **`hooks`** configures observability hooks; sensitive headers and bodies are redacted before hooks run.
 
-**Retries:** transient statuses (429/502/503/504) and network errors are retried
-with full-jitter backoff **only for retry-safe requests** — idempotent methods
-and anything with an `idempotency_key`. A non-idempotent POST (e.g. minting a
-connection token) is never auto-retried.
+Use `await vinkius.aclose()` to release the SDK's HTTP client, or use `async with Vinkius(...)` as shown above.
 
-### Low-level API
+### Retries and idempotency
 
-Every fluent call has a REST equivalent if you want full control:
+Transient HTTP statuses (`429`, `502`, `503`, `504`) and network errors are retried with full-jitter backoff only for retry-safe requests. Idempotent methods and requests carrying an `idempotency_key` may be retried. Non-idempotent POST requests, such as minting a connection token, are not automatically retried.
+
+For actions that create or modify data in external systems, design your agent loop to account for duplicate requests and uncertain outcomes. Use idempotency support where available and appropriate.
+
+## Low-level API
+
+The fluent API has REST equivalents when you need more direct control:
 
 ```python
-connection = await vinkius.users.connections("alice_123").create({"connector": "github"})
+connection = await vinkius.users.connections("alice_123").create(
+    {"connector": "github"}
+)
+
 await vinkius.users.connections("alice_123").credentials(connection["id"]).set(
-    {"credentials": {"GITHUB_TOKEN": "…"}}   # low-level uses the HTTP envelope
+    {"credentials": {"GITHUB_TOKEN": "..."}}
 )
 
-await vinkius.catalog.search("github")        # marketplace-ranked discovery
-async for c in vinkius.catalog.iterate(): ...
+await vinkius.catalog.search("github")
+
+async for connector in vinkius.catalog.iterate():
+    print(connector)
 ```
 
-### Errors
+## Error handling
 
-Every failure is a `VinkiusError` subclass with `status`, a stable `code`, and the
-server `request_id`:
+SDK exceptions inherit from `VinkiusError` and expose a status, stable error code, and server `request_id` where available.
 
-`ConfigError` · `AuthError` · `NotFoundError` · `ValidationError` · `RateLimitError` ·
-`QuotaError` · `OverageError` · `ConnectorNotConnectedError` · `ConnectionError` ·
-`ProtocolError`
+Common exception types include:
+
+- `ConfigError`
+- `AuthError`
+- `NotFoundError`
+- `ValidationError`
+- `RateLimitError`
+- `QuotaError`
+- `OverageError`
+- `ConnectorNotConnectedError`
+- `ConnectionError`
+- `ProtocolError`
 
 ```python
 from vinkius_connect import VinkiusError, RateLimitError
 
 try:
-    await vinkius.user("alice_123").capabilities()
-except RateLimitError as e:
-    ...  # e.retry_after_ms
-except VinkiusError as e:
-    ...  # e.code, e.status, e.request_id, e.details
+    caps = await vinkius.user("alice_123").capabilities()
+except RateLimitError as exc:
+    # Inspect retry_after_ms when present.
+    print(exc.retry_after_ms)
+except VinkiusError as exc:
+    # Useful for logs and support; avoid logging secrets or sensitive payloads.
+    print(exc.code, exc.status, exc.request_id)
 ```
 
-Capability execution **returns** `is_error=True` results instead of throwing, so
-your agent can recover; only transport/config/protocol failures raise.
+Capability-level execution failures are returned as results with `is_error` set, allowing an agent loop to pass the failure back to the model and recover. Transport, configuration, and protocol failures are raised as exceptions.
 
-### Security
+## Security practices
 
-- **One secret** — `vk_app_sk_*`, server-side only.
-- **Identity on every request** — each call carries your app id, validated against
-  the key; a key can only ever act for its own app.
-- **Write-only credentials** — set, never read back; the model never sees raw secrets.
-- **Bounded token exposure** — the `vk_live_*` runtime token + its URL are returned
-  only at issue time; the SDK caches *no* secrets, and redacts them before any
-  observability hook runs.
+- **Keep application keys server-side.** Never ship `vk_app_sk_*` in frontend code, mobile applications, repositories, or prompts.
+- **Authenticate users in your application.** Resolve `external_id` from trusted backend state; do not accept arbitrary user IDs from clients.
+- **Scope actions to the right user.** Fetch and execute capabilities for the authenticated user's identity only.
+- **Keep raw secrets out of prompts.** Connector credentials are write-only through the documented API and are not intended for model context.
+- **Treat tool calls as actions.** Apply your product's confirmation, authorization, and policy requirements before executing sensitive or irreversible operations.
+- **Protect logs.** Do not log API keys, tokens, credential values, or sensitive customer data.
+- **Handle revocation and failures.** Make connection state visible in your product and define how your application responds when a connector is disabled, expired, or unavailable.
+
+Vinkius Connect provides connectivity and execution primitives. Your application remains responsible for authenticating its users, enforcing product-level policy, and deciding when an AI-requested action requires confirmation.
 
 ## Development
 
+Clone the repository and install the test dependencies:
+
 ```bash
 pip install -e ".[test]"
-pytest            # 94 tests, fully offline via an injectable fake transport
+pytest
 ```
 
-This is the Python port of the TypeScript SDK (`@vinkius/connect`); both expose
-the same contract.
+The SDK's tests use an injectable fake transport and can run offline. Framework-specific extras can be installed for examples and tests that construct real framework objects, for example:
+
+```bash
+pip install -e ".[openai,anthropic,langchain]"
+```
 
 ## License
 
-[Apache 2.0](./LICENSE) © Vinkius
+[Apache License 2.0](./LICENSE), Copyright Vinkius.

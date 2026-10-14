@@ -1,13 +1,14 @@
 """
-End-to-end with OpenAI — three imports, and the model can call your user's
-real capabilities.
+End-to-end with OpenAI: three imports, and the model calls your user's real
+capabilities.
 
 Requires `pip install openai` (the adapter itself is zero-dependency; it just
-shapes the tools — bring your own OpenAI client).
+shapes the tools; bring your own OpenAI client).
 
     export VINKIUS_APP_ID=vk_app_xxx
     export VINKIUS_APP_KEY=vk_app_sk_xxx
     export OPENAI_API_KEY=sk_...
+    export OPENAI_MODEL=your-model
     python examples/openai_end_to_end.py
 """
 
@@ -31,7 +32,7 @@ async def main() -> None:
     capabilities = await vinkius.user("alice_123").capabilities()
 
     completion = await client.chat.completions.create(
-        model="gpt-4o",
+        model=os.environ["OPENAI_MODEL"],
         messages=[{"role": "user", "content": 'Open a GitHub issue titled "Ship it"'}],
         tools=vinkius_openai.to_openai_tools(capabilities),
     )

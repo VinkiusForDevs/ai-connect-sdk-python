@@ -1,4 +1,4 @@
-"""Error mapping tests (mirrors test/errors.test.ts)."""
+"""Error mapping tests."""
 
 from __future__ import annotations
 

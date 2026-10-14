@@ -1,4 +1,4 @@
-"""external_id validation tests (mirrors test/validate.test.ts)."""
+"""external_id validation tests."""
 
 from __future__ import annotations
 

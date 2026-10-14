@@ -1,8 +1,8 @@
-"""UserContext — a lazy handle to one end-user's connectors and capabilities.
+"""UserContext: a lazy handle to one end-user's connectors and capabilities.
 
 ``vinkius.user("usr_123")`` performs zero network calls and stores nothing but
-the client's ``external_id``. Every operation addresses the API by that
-external_id directly — the SDK never resolves nor holds an internal user id.
+the client's ``external_id``. All operations address the API by that
+external_id directly; the SDK never resolves or holds an internal user id.
 """
 
 from __future__ import annotations
@@ -53,20 +53,18 @@ class UserContext:
     async def capabilities(self, query: Optional[dict] = None) -> CapabilitySet:
         """Aggregated, executable capabilities across the user's ready connectors.
 
-        Tools are listed and executed exclusively at the MCP runtime — the sole
-        metered, revocable surface. Because each connection is billed and
-        kill-switched independently by its own ``vk_live_*`` token, aggregation
-        is a fan-out over the connected connectors (each resolves its own
-        runtime), not a single API call. Only ``ready`` connectors are included;
-        the rest cannot list tools until connected/credentialed.
+        Aggregation is a fan-out over the user's connected connectors: each
+        resolves its own runtime and lists its tools, rather than a single API
+        call. Only ``ready`` connectors are included; the rest cannot list
+        tools until they are connected and credentialed.
 
         ``query`` may carry: ``include`` / ``exclude`` (slug lists),
         ``on_connector_error`` (callback), and request controls
         (``idempotency_key``, ``timeout_ms``).
 
         For a single connector, prefer
-        ``user.connector(slug).capabilities()`` — it avoids listing every
-        connection.
+        ``user.connector(slug).capabilities()``: it avoids listing all
+        connections.
         """
         query = query or {}
         include = set(query["include"]) if query.get("include") else None
@@ -109,7 +107,7 @@ class UserContext:
                         "timeout_ms": query.get("timeout_ms"),
                     }
                 )
-            except BaseException as error:  # isolated failure — never sinks the batch
+            except BaseException as error:  # isolated failure: never sinks the batch
                 if first_error is None:
                     first_error = error
                 on_error = query.get("on_connector_error")

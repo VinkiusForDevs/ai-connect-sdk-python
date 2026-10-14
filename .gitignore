@@ -22,3 +22,6 @@ htmlcov/
 .idea/
 .vscode/
 .DS_Store
+
+# Source art (shipped as assets/*.webp)
+/*.png

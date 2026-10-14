@@ -1,18 +1,14 @@
-"""RuntimeClient — the ONLY surface for tool listing and execution.
+"""RuntimeClient: lists and executes a connection's tools over the data plane.
 
-Vinkius meters, bills, and kill-switches every tool call at the runtime, keyed
-by the ``vk_live_*`` token embedded in the connection's ``mcp_url`` path. The
-API is NEVER an execution surface. This client therefore talks JSON-RPC 2.0 over
-Streamable HTTP directly to ``{RUNTIME}/{token}/mcp``, statelessly (one POST, no
-``initialize`` handshake, no session id).
+Talks JSON-RPC 2.0 over Streamable HTTP to the connection's ``mcp_url``
+(stateless: one POST, no ``initialize`` handshake, no session id). The
+``vk_live_*`` token is embedded in the URL path, so no auth headers are added.
 
-Responsibilities:
-
-* ``tools/list`` (free, un-metered) and ``tools/call`` (metered) as single POSTs.
-* Retries for the idempotent ``tools/list`` only; ``tools/call`` retries solely
-  when the caller supplies an idempotency key (side-effect safety).
-* Runtime error mapping: revoked token (403) -> :class:`AuthError`, unknown
-  (404) -> :class:`NotFoundError`, transient (5xx) ->
+* ``tools/list`` and ``tools/call`` as single POSTs.
+* Retries only for the idempotent ``tools/list``; ``tools/call`` retries only
+  when an idempotency key is supplied.
+* Runtime error mapping: 401/403 -> :class:`AuthError`, 404 ->
+  :class:`NotFoundError`, transient ->
   :class:`~vinkius_connect.core.errors.VinkiusError` (``connection_error``),
   JSON-RPC errors -> :class:`ProtocolError`. Tool-level failures are returned
   as ``{is_error: True}``.
@@ -31,7 +27,7 @@ from ..types import CapabilityResult
 
 __all__ = ["RuntimeClient"]
 
-#: JSON-RPC protocol version advertised to the runtime (2026-era stateless).
+#: JSON-RPC protocol version advertised to the runtime.
 MCP_PROTOCOL_VERSION = "2026-07-28"
 
 
@@ -79,7 +75,7 @@ class RuntimeClient:
     async def list_tools(
         self, *, idempotency_key: Optional[str] = None, timeout_ms: Optional[int] = None
     ) -> list[dict[str, Any]]:
-        """List the tools this connection exposes. Free (un-metered) at the runtime."""
+        """List the tools this connection exposes."""
         result = await self._rpc("tools/list", {}, idempotency_key, timeout_ms, retryable=True)
         tools = (result or {}).get("tools") if isinstance(result, dict) else None
         if not isinstance(tools, list):
@@ -96,7 +92,7 @@ class RuntimeClient:
         idempotency_key: Optional[str] = None,
         timeout_ms: Optional[int] = None,
     ) -> CapabilityResult:
-        """Execute a tool. Metered against the connection's token."""
+        """Execute a tool."""
         result = await self._rpc(
             "tools/call",
             {"name": name, "arguments": args or {}},
@@ -219,8 +215,8 @@ def normalize_call_result(result: Any) -> CapabilityResult:
             text = entry.get("text") if isinstance(entry.get("text"), str) else json.dumps(entry)
             content.append({"type": ctype, "text": text})
     normalized = CapabilityResult(content=content, is_error=(r.get("isError") is True))
-    # The MCP data plane may return a parsed object alongside the textual content.
-    # Surface it verbatim when present — never parsed or transformed by the SDK.
+    # Surface structuredContent verbatim when present; the SDK never parses or
+    # transforms it.
     if "structuredContent" in r:
         normalized.structured_content = r["structuredContent"]
     return normalized

@@ -1,4 +1,4 @@
-"""Catalog client tests (mirrors test/catalog.test.ts)."""
+"""Catalog client tests."""
 
 from __future__ import annotations
 

@@ -1,10 +1,9 @@
 """Pagination normalization.
 
-The API is heterogeneous: some list endpoints return the full Laravel
-length-aware envelope (``{ data, links, meta }``), others return only
-``{ data: [...] }``. This module coerces both into a plain dict with a
-``data`` key (and optional ``meta``/``links``) and exposes the raw list when a
-plain array is expected.
+Some list endpoints return a length-aware envelope (``{ data, links, meta }``);
+others return only ``{ data: [...] }``. This module coerces both into a dict
+with a ``data`` key (and optional ``meta``/``links``) and exposes the raw list
+when a plain array is expected.
 """
 
 from __future__ import annotations

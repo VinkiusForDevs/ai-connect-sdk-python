@@ -1,4 +1,4 @@
-"""ResolverCache tests (mirrors test/cache.test.ts)."""
+"""ResolverCache tests."""
 
 from __future__ import annotations
 

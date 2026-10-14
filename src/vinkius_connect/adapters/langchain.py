@@ -1,9 +1,8 @@
-"""LangChain adapter (Python).
+"""LangChain adapter.
 
 Builds LangChain **tools** (LangChain's term). Zero-dependency: instead of
 importing ``langchain-core``, you inject LangChain's own tool factory so the
-returned objects are genuine LangChain tools (bindable to a model). This
-mirrors the ``ai-sdk`` adapter's injection pattern.
+returned objects are genuine LangChain tools (bindable to a model).
 
 Example::
 

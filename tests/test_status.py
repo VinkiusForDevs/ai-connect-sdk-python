@@ -1,4 +1,4 @@
-"""Status derivation tests (mirrors test/status.test.ts)."""
+"""Status derivation tests."""
 
 from __future__ import annotations
 

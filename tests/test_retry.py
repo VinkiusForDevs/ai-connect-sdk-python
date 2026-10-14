@@ -1,4 +1,4 @@
-"""Retry policy / backoff math tests (mirrors test/retry.test.ts)."""
+"""Retry policy and backoff math tests."""
 
 from __future__ import annotations
 

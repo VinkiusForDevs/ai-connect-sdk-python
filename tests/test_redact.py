@@ -1,4 +1,4 @@
-"""Redaction tests (mirrors test/redact.test.ts)."""
+"""Redaction tests."""
 
 from __future__ import annotations
 

@@ -1,7 +1,7 @@
 """
 Minimal multi-user chatbot handler.
 
-Each user gets their own capabilities — the same code serves every user. Run
+Each user gets their own capabilities, and the same code serves all users. Run
 with: `python examples/chatbot.py` (after installing the package and setting
 your Vinkius credentials).
 """

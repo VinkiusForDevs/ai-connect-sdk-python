@@ -1,10 +1,8 @@
-"""Connections for a user (low-level, 1:1 with the API).
+"""Connections for a user (low-level).
 
 A connection is an established connector for a user. Creating one connects the
 connector (get-or-create user + connection; idempotent per user+connector).
-
-The API transport path is ``/apps/{app}/users/{externalId}/mcps`` (the Vinkius
-data plane is MCP-based internally); the SDK exposes it as "connections".
+The SDK exposes these as "connections".
 """
 
 from __future__ import annotations
@@ -20,7 +18,7 @@ __all__ = ["ConnectionsClient", "CreateConnectionInput"]
 
 
 class CreateConnectionInput(dict):
-    """Input for :meth:`ConnectionsClient.create` — ``connector`` (slug or catalog id)."""
+    """Input for :meth:`ConnectionsClient.create`. ``connector`` is a slug or catalog id."""
 
 
 class ConnectionsClient:

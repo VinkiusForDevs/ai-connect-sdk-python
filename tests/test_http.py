@@ -1,4 +1,4 @@
-"""HttpClient / transport tests (mirrors test/http.test.ts)."""
+"""HttpClient and transport tests."""
 
 from __future__ import annotations
 
@@ -130,8 +130,9 @@ def test_hooks_receive_redacted_data():
     assert body["data"]["token"] == "[REDACTED]"
 
 
-async def test_base_url_normalization_strips_trailing_slash():
+async def test_default_endpoint_is_fixed():
+    # The Vinkius endpoint is immutable: there is no public base_url option.
     fc = FakeClient().enqueue(FakeResponse(200, {"data": {}}))
-    v = make_vinkius(fc, base_url="https://api.vinkius.com/")
+    v = make_vinkius(fc)
     await v.users.get("alice_123")
     assert fc.last["url"].startswith("https://api.vinkius.com/apps/")

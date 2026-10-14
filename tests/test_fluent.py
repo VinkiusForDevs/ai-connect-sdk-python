@@ -1,6 +1,5 @@
 """Fluent-layer tests: UserContext, Connector, Capability, Credentials,
-and the user.capabilities() fan-out (mirrors test/user, test/connector,
-test/capabilities, test/credentials)."""
+and the user.capabilities() fan-out."""
 
 from __future__ import annotations
 

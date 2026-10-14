@@ -8,7 +8,6 @@ clear :class:`ConfigError`.
 from __future__ import annotations
 
 import sys
-import warnings
 from typing import Any, Optional
 from urllib.parse import urlparse
 
@@ -46,8 +45,7 @@ class Vinkius:
                 '`apiKey` must be a secret application key starting with "vk_app_sk_."'
             )
 
-        base_url = _normalize_base_url(opts.base_url or DEFAULT_BASE_URL)
-        _warn_if_insecure(base_url)
+        base_url = _normalize_base_url(DEFAULT_BASE_URL)
 
         timeout_ms = opts.timeout_ms or DEFAULT_TIMEOUT_MS
         retry = DEFAULT_RETRY if opts.max_retries is None else DEFAULT_RETRY.__class__(
@@ -83,9 +81,9 @@ class Vinkius:
             app_id=app_id,
             cache=ResolverCache(),
             namespace=opts.namespace_capability or (lambda connector, name: f"{connector}__{name}"),
-            # The runtime is the sole execution surface; its config mirrors the API
-            # client's transport settings but carries no API auth (the mcp_url
-            # embeds the vk_live_* token). Hooks apply to the data plane too.
+            # The runtime client reuses the same transport settings as the API
+            # client but adds no API auth: the mcp_url embeds the vk_live_*
+            # token. Hooks apply to it as well.
             runtime=lambda mcp_url: RuntimeClient(
                 mcp_url,
                 RuntimeClientConfig(
@@ -142,7 +140,6 @@ class Vinkius:
             return VinkiusOptions(
                 app_id=kwargs.get("app_id", ""),
                 api_key=kwargs.get("api_key", ""),
-                base_url=kwargs.get("base_url"),
                 timeout_ms=kwargs.get("timeout_ms"),
                 max_retries=kwargs.get("max_retries"),
                 client=kwargs.get("client"),
@@ -153,7 +150,6 @@ class Vinkius:
         if options is None:
             options = VinkiusOptions(app_id=kwargs.get("app_id", ""), api_key=kwargs.get("api_key", ""))
             for field in (
-                "base_url",
                 "timeout_ms",
                 "max_retries",
                 "client",
@@ -175,25 +171,6 @@ def _normalize_base_url(url: str) -> str:
         return url.rstrip("/")
     except ValueError:
         raise ConfigError(f"Invalid baseUrl: {url}")
-
-
-def _warn_if_insecure(base_url: str) -> None:
-    try:
-        parsed = urlparse(base_url)
-        host = parsed.hostname or ""
-        is_local = (
-            host in ("localhost", "127.0.0.1")
-            or host == "::1"
-            or host.endswith(".localhost")
-        )
-        if parsed.scheme == "http" and not is_local:
-            warnings.warn(
-                "[vinkius] baseUrl uses insecure http:// on a non-local host; use https:// in production.",
-                stacklevel=2,
-            )
-    except ValueError:
-        # already validated
-        return
 
 
 def _build_user_agent(extra: Optional[str]) -> str:

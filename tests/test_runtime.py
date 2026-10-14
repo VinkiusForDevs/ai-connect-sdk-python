@@ -1,4 +1,4 @@
-"""RuntimeClient (MCP JSON-RPC) tests (mirrors test/capabilities + runtime)."""
+"""RuntimeClient JSON-RPC tests."""
 
 from __future__ import annotations
 

@@ -1,4 +1,4 @@
-"""Application end-users (low-level, 1:1 with the API).
+"""Application end-users (low-level).
 
     GET/POST         /apps/{app}/users
     GET/PATCH/DELETE /apps/{app}/users/{externalId}
@@ -6,9 +6,7 @@
 Users are addressed by their client-supplied ``external_id``. ``create`` is
 idempotent: the API upserts by ``(application_id, external_id)``.
 
-Tool listing/execution is NOT here — that is the runtime's job, reached per
-connection via :meth:`ConnectionsClient.tokens` (see the fluent
-:class:`~vinkius_connect.fluent.connector.Connector`).
+Tool listing and execution run through the runtime per connection, not here.
 """
 
 from __future__ import annotations

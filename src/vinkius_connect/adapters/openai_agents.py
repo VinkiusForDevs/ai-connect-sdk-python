@@ -1,6 +1,6 @@
-"""OpenAI Agents SDK adapter (Python, ``openai-agents``).
+"""OpenAI Agents SDK adapter (``openai-agents``).
 
-Builds function tools for the Python ``openai-agents`` SDK — distinct from the
+Builds function tools for the Python ``openai-agents`` SDK, distinct from the
 chat-completions :mod:`openai` adapter. Inject the SDK's own ``function_tool``
 factory; the capability's JSON Schema is passed as raw parameters with
 ``strict=False``, so the platform (not the model) owns input validation.
@@ -28,8 +28,9 @@ def to_openai_agents_tools(
 ):
     """Convert Vinkius capabilities to ``openai-agents`` function tools.
 
-    ``tool_factory`` mirrors ``agents.function_tool``: it is called as
-    ``tool_factory(func, name, description)`` and must return a tool object.
+    ``tool_factory`` matches the signature of ``agents.function_tool``: it is
+    called as ``tool_factory(func, name, description)`` and must return a tool
+    object.
     The capability's JSON Schema is exposed verbatim on the wrapped function so
     the platform validates inputs server-side (raw JSON Schema, not strict
     mode).

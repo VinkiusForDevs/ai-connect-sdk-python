@@ -1,4 +1,4 @@
-"""Connection credentials (low-level, 1:1 with the API).
+"""Connection credentials (low-level).
 
     GET /apps/{app}/users/{externalId}/mcps/{connection}/credentials  -> CredentialStatus
     PUT  (same)  body { credentials: { KEY: value } }                 -> CredentialStatus
@@ -21,7 +21,7 @@ __all__ = ["CredentialsClient", "SetCredentialsInput"]
 
 
 class SetCredentialsInput(dict):
-    """The raw HTTP envelope — ``credentials: {KEY: value}``."""
+    """The raw HTTP envelope: ``credentials: {KEY: value}``."""
 
 
 class CredentialsClient:
